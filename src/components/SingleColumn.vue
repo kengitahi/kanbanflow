@@ -15,14 +15,21 @@
       </button>
     </div>
 
-    <div class="flex-1">
-      <TaskCard
-        v-for="task in columnTasks"
-        :key="task.id"
-        :task="task"
-        @remove="handleRemoveTask"
-      />
-    </div>
+    <draggable
+      :list="columnTasks"
+      group="tasks"
+      item-key="id"
+      @change="onTaskMoved"
+      class="flex-1 min-h-[50px] hover:cursor-grab"
+      ghost-class="opacity-40"
+    >
+      <template #item='{ element }'>
+        <TaskCard
+          :task="element"
+          @remove="handleRemoveTask"
+        />
+      </template>
+    </draggable>
 
     <AddTaskForm
       v-if="column.id !== 'done'"
@@ -37,14 +44,14 @@
   import { useBoardStore } from '../stores/board';
   import TaskCard from './TaskCard.vue';
   import AddTaskForm from './AddTaskForm.vue';
+  import draggable from 'vuedraggable';
 
   const props = defineProps({
     column: Object
   });
-
   const store = useBoardStore();
-  const name = ref(props.column.name);
 
+  const name = ref(props.column.name);
   watch(() => props.column.name, (val) => {
     name.value = val;
   });
@@ -68,6 +75,13 @@
 
   const columnTasks = computed(() =>
     store.tasks.filter(task => task.columnId === props.column.id)
-  )
+  );
+
+  function onTaskMoved(evt) {
+    const movedTask = evt.added?.element;
+    if (movedTask) {
+      store.moveTask(movedTask.id, props.column.id);
+    }
+  }
 
 </script>

@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
+
+const STORAGE_KEY = 'kanban-board';
 
 export const useBoardStore = defineStore('board', () => {
   const defaultColumns = [
@@ -10,6 +12,29 @@ export const useBoardStore = defineStore('board', () => {
 
   const columns = ref([...defaultColumns]);
   const tasks = ref([]);
+
+  // --- Persistence ---
+
+  // Auto-save to localStorage on change
+  watchEffect(() => {
+    const data = {
+      columns: columns.value,
+      tasks: tasks.value
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  });
+
+  // Load from localStorage (reactively)
+  function loadBoard() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      columns.value = parsed.columns || [];
+      tasks.value = parsed.tasks || [];
+    }
+  }
+
+  // --- Column Management ---
 
   function addColumn(name) {
     const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
@@ -37,6 +62,8 @@ export const useBoardStore = defineStore('board', () => {
     if (column) column.name = newName;
   }
 
+  // --- Task Management ---
+
   function addTask(columnId, title) {
     tasks.value.push({
       id: Date.now().toString(),
@@ -59,6 +86,9 @@ export const useBoardStore = defineStore('board', () => {
     return tasks.value.filter(task => task.columnId === columnId);
   }
 
+  // --- Exported API ---
+
+  loadBoard();
 
   return {
     columns,
