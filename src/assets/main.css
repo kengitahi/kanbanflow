@@ -1,2 +1,12 @@
 @import './base.css';
 @import 'tailwindcss';
+
+.draggable-fade-enter-active,
+.draggable-fade-leave-active {
+  transition: all 0.2s ease;
+}
+.draggable-fade-enter-from,
+.draggable-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}

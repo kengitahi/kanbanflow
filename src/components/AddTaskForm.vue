@@ -1,5 +1,8 @@
 <template>
-  <form @submit.prevent="submit" class="mt-2">
+  <form
+    @submit.prevent="submit"
+    class="mt-2"
+  >
     <input
       v-model="title"
       placeholder="Add a task..."
@@ -9,17 +12,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+  import { ref } from 'vue';
 
-const props = defineProps({ columnId: String })
-const emit = defineEmits(['add'])
+  const props = defineProps({ columnId: String });
+  const emit = defineEmits(['add']);
 
-const title = ref('')
+  const title = ref('');
 
-function submit() {
-  if (title.value.trim()) {
-    emit('add', { title: title.value.trim(), columnId: props.columnId })
-    title.value = ''
+  function submit() {
+    if (title.value.trim()) {
+      emit('add', { title: title.value.trim(), columnId: props.columnId });
+      title.value = '';
+    }
   }
-}
 </script>

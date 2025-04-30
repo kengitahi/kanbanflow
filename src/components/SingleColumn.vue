@@ -1,5 +1,5 @@
 <template>
-  <div :class="['rounded-lg p-4 min-w-[250px] flex flex-col', column.color]">
+  <div :class="['rounded-lg p-4 min-w-[250px]', column.color]">
     <div class="flex justify-between items-center mb-2">
       <input
         v-model="name"
@@ -16,43 +16,58 @@
     </div>
 
     <div class="flex-1">
-      <TaskCard v-for="task in columnTasks" :key="task.id" :task="task" @remove="removeTask" />
+      <TaskCard
+        v-for="task in columnTasks"
+        :key="task.id"
+        :task="task"
+        @remove="handleRemoveTask"
+      />
     </div>
 
-    <AddTaskForm v-if="column.id !== 'done'" :columnId="column.id" @add="handleAddTask" />
+    <AddTaskForm
+      v-if="column.id !== 'done'"
+      :columnId="column.id"
+      @add="handleAddTask"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useBoardStore } from '../stores/board'
-import TaskCard from './TaskCard.vue'
-import AddTaskForm from './AddTaskForm.vue'
+  import { ref, watch, computed } from 'vue';
+  import { useBoardStore } from '../stores/board';
+  import TaskCard from './TaskCard.vue';
+  import AddTaskForm from './AddTaskForm.vue';
 
-const props = defineProps({ column: Object })
-const store = useBoardStore()
+  const props = defineProps({
+    column: Object
+  });
 
-const name = ref(props.column.name)
-watch(
-  () => props.column.name,
-  (val) => (name.value = val),
-)
+  const store = useBoardStore();
+  const name = ref(props.column.name);
 
-function rename() {
-  store.renameColumn(props.column.id, name.value)
-}
+  watch(() => props.column.name, (val) => {
+    name.value = val;
+  });
 
-function remove() {
-  store.removeColumn(props.column.id)
-}
+  function rename() {
+    store.renameColumn(props.column.id, name.value);
+  }
 
-function handleAddTask({ columnId, title }) {
-  store.addTask(columnId, title)
-}
+  function remove() {
+    store.removeColumn(props.column.id);
+  }
 
-function removeTask(taskId) {
-  store.removeTask(taskId)
-}
 
-const columnTasks = computed(() => store.tasks.filter((task) => task.columnId === props.column.id))
+  function handleAddTask({ columnId, title }) {
+    store.addTask(columnId, title);
+  }
+
+  function handleRemoveTask(taskId) {
+    store.removeTask(taskId);
+  }
+
+  const columnTasks = computed(() =>
+    store.tasks.filter(task => task.columnId === props.column.id)
+  )
+
 </script>

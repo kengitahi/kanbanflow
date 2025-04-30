@@ -1,6 +1,9 @@
 <template>
   <div class="min-w-[250px]">
-    <form @submit.prevent="handleAdd" class="bg-white p-4 rounded-lg shadow">
+    <form
+      @submit.prevent="handleAdd"
+      class="bg-white p-4 rounded-lg shadow"
+    >
       <input
         v-model="newColumn"
         placeholder="New column name"
@@ -17,16 +20,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useBoardStore } from '../stores/board'
+  import { ref } from 'vue';
+  import { useBoardStore } from '../stores/board';
 
-const store = useBoardStore()
-const newColumn = ref('')
+  const store = useBoardStore();
+  const newColumn = ref('');
 
-function handleAdd() {
-  if (newColumn.value.trim()) {
-    store.addColumn(newColumn.value.trim())
-    newColumn.value = ''
+  function handleAdd() {
+    if (newColumn.value.trim()) {
+      store.addColumn(newColumn.value.trim());
+      newColumn.value = '';
+    }
   }
-}
 </script>
