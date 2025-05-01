@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
+import confetti from 'canvas-confetti';
+
 const STORAGE_KEY = 'kanban-board';
 
 export const useBoardStore = defineStore('board', () => {
@@ -83,10 +85,41 @@ export const useBoardStore = defineStore('board', () => {
   function moveTask(taskId, targetColumnId) {
     const task = tasks.value.find(t => t.id === taskId);
     if (task) task.columnId = targetColumnId;
+
+    if (targetColumnId === 'done') {
+      markTaskComplete(taskId);
+      triggerConfetti();
+    }
+
+    console.log('moveTask', taskId, targetColumnId);
   }
 
   function getTasksByColumnId(columnId) {
     return tasks.value.filter(task => task.columnId === columnId);
+  }
+
+  function markTaskComplete(id) {
+    const task = tasks.value.find(t => t.id === id);
+    if (task && !task.completed) {
+      task.completed = true;
+      task.columnId = 'done';
+    }
+  }
+
+
+  // Basic confetti (we’ll improve this later);
+  function triggerConfetti() {
+    const duration = 1000;
+    const end = Date.now() + duration;
+
+    const interval = setInterval(() => {
+      if (Date.now() > end) return clearInterval(interval);
+      confetti({
+        particleCount: 10,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    }, 100);
   }
 
   return {
@@ -98,6 +131,8 @@ export const useBoardStore = defineStore('board', () => {
     addTask,
     removeTask,
     moveTask,
-    getTasksByColumnId
+    getTasksByColumnId,
+    markTaskComplete,
+    triggerConfetti
   };
 });
