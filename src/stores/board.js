@@ -26,10 +26,10 @@ export const useBoardStore = defineStore('board', () => {
         tasks.value = parsed.tasks || [];
       } catch (e) {
         console.error('Failed to parse stored data:', e);
-        // Reset to defaults if parsing fails
-        columns.value = [...defaultColumns];
-        tasks.value = [];
       }
+    } else {
+      columns.value = [...defaultColumns];
+      tasks.value = [];
     }
   }
 
@@ -89,9 +89,9 @@ export const useBoardStore = defineStore('board', () => {
     if (targetColumnId === 'done') {
       markTaskComplete(taskId);
       triggerConfetti();
+    } else {
+      task.completed = false;
     }
-
-    console.log('moveTask', taskId, targetColumnId);
   }
 
   function getTasksByColumnId(columnId) {
@@ -107,7 +107,7 @@ export const useBoardStore = defineStore('board', () => {
   }
 
 
-  // Basic confetti (we’ll improve this later);
+  // --- Basic confetti (we’ll improve this later);
   function triggerConfetti() {
     const duration = 1000;
     const end = Date.now() + duration;
@@ -122,9 +122,36 @@ export const useBoardStore = defineStore('board', () => {
     }, 100);
   }
 
+  // --- Pomodoro
+
+  // Pomodoro session state
+  const activePomodoro = ref(null);
+
+  //!TODO:Replace this with a modal component that allows user to customize the timings
+  function promptPomodoro(task) {
+    const wantsTimer = confirm(`Start a Pomodoro session for "${task.title}"?`);
+    if (wantsTimer) {
+      startPomodoro(task);
+    }
+  }
+
+  function startPomodoro(task) {
+    activePomodoro.value = {
+      taskId: task.id,
+      taskName: task.title,
+      startedAt: Date.now()
+      // You can expand with timing settings later
+    };
+  }
+
+  function stopPomodoro() {
+    activePomodoro.value = null;
+  }
+
   return {
     columns,
     tasks,
+    activePomodoro,
     addColumn,
     removeColumn,
     renameColumn,
@@ -133,6 +160,9 @@ export const useBoardStore = defineStore('board', () => {
     moveTask,
     getTasksByColumnId,
     markTaskComplete,
-    triggerConfetti
+    triggerConfetti,
+    promptPomodoro,
+    startPomodoro,
+    stopPomodoro,
   };
 });

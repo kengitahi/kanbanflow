@@ -79,8 +79,21 @@
 
   function onTaskMoved(evt) {
     const movedTask = evt.added?.element;
+
+    // const prevColumn = movedTask.columnId;
+    const newColumn = props.column.id;
+
     if (movedTask) {
-      store.moveTask(movedTask.id, props.column.id);
+      store.moveTask(movedTask.id, newColumn);
+    }
+
+    // if the task was moved from anywhere else other than the done column, start a pomodoro
+    if (newColumn !== 'done' && newColumn !== 'todo') {
+      store.promptPomodoro(movedTask);
+
+      // if the task was moved to the done column, stop the pomodoro
+    } else {
+      store.stopPomodoro();
     }
   }
 
