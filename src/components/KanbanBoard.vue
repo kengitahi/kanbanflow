@@ -5,6 +5,8 @@
       <p>Debug: activePomodoro exists: {{ store.activePomodoro !== null }}</p>
       <p v-if="store.activePomodoro">Task name: {{ store.activePomodoro.taskName }}</p>
       <p v-if="store.activePomodoro">Start time: {{ store.activePomodoro.startTime }}</p>
+      <p v-if="store.activePomodoro">Start time: {{ store.activePomodoro }}</p>
+
       <button
         @click="testPomodoro"
         class="bg-blue-500 text-white px-2 py-1 rounded mt-1"

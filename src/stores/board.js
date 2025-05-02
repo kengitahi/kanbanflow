@@ -112,6 +112,7 @@ export const useBoardStore = defineStore('board', () => {
 
   function moveTask(taskId, targetColumnId) {
     const task = tasks.value.find(t => t.id === taskId);
+
     if (task) {
       const oldColumnId = task.columnId;
       task.columnId = targetColumnId;
@@ -127,6 +128,8 @@ export const useBoardStore = defineStore('board', () => {
       if (targetColumnId === 'done') {
         markTaskComplete(taskId);
         triggerConfetti();
+
+        // TODO: Add functionality to either stop pomo or start a new one
       } else {
         task.completed = false;
       }
@@ -164,6 +167,8 @@ export const useBoardStore = defineStore('board', () => {
   function promptPomodoro(task) {
     console.log("Prompting pomodoro for task:", task);
     const wantsTimer = confirm(`Start a Pomodoro session for "${task.title}"?`);
+
+    console.log("Wants timer:", wantsTimer);
     if (wantsTimer) {
       startPomodoro(task);
     }
@@ -189,7 +194,7 @@ export const useBoardStore = defineStore('board', () => {
     console.log("Force setting pomodoro");
     activePomodoro.value = {
       taskId: "test-task",
-      taskName: "Test Task",
+  taskName: "Test Task",
       startTime: Date.now()
     };
     console.log("Pomodoro set:", activePomodoro.value);
