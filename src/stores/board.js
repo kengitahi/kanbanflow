@@ -31,7 +31,8 @@ export const useBoardStore = defineStore('board', () => {
         if (parsed.activePomodoro) {
           activePomodoro.value = parsed.activePomodoro;
         }
-      } catch (e) {
+      } catch (error) {
+        console.error('Error parsing saved board:', error);
         // Reset to defaults if parsing fails
         columns.value = [...defaultColumns];
         tasks.value = [];
