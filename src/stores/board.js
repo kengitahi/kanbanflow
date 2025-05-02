@@ -69,10 +69,38 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function removeColumn(id) {
-    const index = columns.value.findIndex(col => col.id === id);
-    if (index !== -1 && !columns.value[index].isDefault) {
-      columns.value.splice(index, 1);
-      tasks.value = tasks.value.filter(task => task.columnId !== id);
+    const columnName = columns.value.find(col => col.id === id).name;
+
+    //Find the number of tasks in the column
+    const tasksInColumn = tasks.value.filter(task => task.columnId === id);
+    const numTasks = tasksInColumn.length;
+
+    if (confirm(`Are you sure you want to delete column "${columnName}"?`)) {
+
+      if (numTasks > 0) {
+        //Mark all tasks in the deleted column as done and move them to 'done' column
+        if (confirm(`There are ${numTasks} tasks in column "${columnName}. Would you like to mark all of them as done?`)) {
+          tasks.value.forEach(task => {
+            if (task.columnId === id) {
+              task.completed = true;
+              moveTask(task.id, 'done');
+            }
+          });
+        } else {
+          tasks.value.forEach(task => {
+            if (task.columnId === id) {
+              task.completed = false;
+              moveTask(task.id, 'todo');
+            }
+          });
+        };
+      }
+
+      const index = columns.value.findIndex(col => col.id === id);
+      if (index !== -1 && !columns.value[index].isDefault) {
+        columns.value.splice(index, 1);
+        tasks.value = tasks.value.filter(task => task.columnId !== id);
+      }
     }
   }
 
@@ -105,7 +133,7 @@ export const useBoardStore = defineStore('board', () => {
     const task = tasks.value.find(t => t.id === taskId);
 
     if (task) {
-      const oldColumnId = task.columnId;
+      // const oldColumnId = task.columnId;
       task.columnId = targetColumnId;
 
       if (targetColumnId !== 'done' && targetColumnId !== 'todo') {

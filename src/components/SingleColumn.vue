@@ -35,7 +35,7 @@
 
     <AddTaskForm
       v-if="column.id !== 'done'"
-      :columnId="column.id"
+      :column="column"
       @add="handleAddTask"
     />
   </div>

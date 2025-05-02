@@ -6,7 +6,7 @@
     >
       <input
         v-model="newColumn"
-        placeholder="New column name"
+        placeholder="Enter a name for the the new column"
         class="w-full border border-gray-300 rounded px-2 py-1 mb-2"
       />
       <button
