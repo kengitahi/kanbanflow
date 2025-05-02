@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white p-2 rounded shadow mb-2 flex justify-between items-center gap-4">
+  <div
+    class="bg-white p-2 rounded shadow mb-2 flex justify-between items-center gap-4"
+    :class="{ 'border-2 border-green-500': store.activePomodoro && task.id === store.activePomodoro.taskId }"
+  >
     <div class="flex items-center gap-2">
       <input
         v-if="showCheckbox"
