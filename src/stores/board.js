@@ -49,7 +49,7 @@ export const useBoardStore = defineStore('board', () => {
   loadBoard(); // Load the board first before watching for changes
 
   // --- Persistence: Watch only after loading
-  watch([columns, tasks], () => {
+  watch([columns, tasks, activePomodoro], () => {
     const data = {
       columns: columns.value,
       tasks: tasks.value,
@@ -79,8 +79,8 @@ export const useBoardStore = defineStore('board', () => {
     if (confirm(`Are you sure you want to delete column "${columnName}"?`)) {
 
       if (numTasks > 0) {
-        //Mark all tasks in the deleted column as done and move them to 'done' column
         if (confirm(`There are ${numTasks} tasks in column "${columnName}. Would you like to mark all of them as done?`)) {
+          //Mark all tasks in the deleted column as done and move them to 'done' column
           tasks.value.forEach(task => {
             if (task.columnId === id) {
               task.completed = true;
@@ -88,6 +88,7 @@ export const useBoardStore = defineStore('board', () => {
             }
           });
         } else {
+          //Move all tasks in the deleted column to 'todo' column
           tasks.value.forEach(task => {
             if (task.columnId === id) {
               task.completed = false;
@@ -185,8 +186,13 @@ export const useBoardStore = defineStore('board', () => {
 
   // --- Pomodoro
   function promptPomodoro(task) {
-    if (confirm(`Would you like to start a Pomodoro session for "${task.title}"?`)) {
+    if (confirm(`Would you like to start a new Pomodoro session for "${task.title}"?`)) {
       startPomodoro(task);
+    } else {
+      //If they do not start a new pomo, ask them to continue with the one running
+      if (confirm(`Would you like to continue the ongoing Pomodoro session with the new task "${task.title}"?`)) {
+        continuePomodoro(task);
+      }
     }
   }
 
@@ -195,6 +201,14 @@ export const useBoardStore = defineStore('board', () => {
       taskId: task.id,
       taskName: task.title,
       startTime: Date.now()
+    };
+  }
+
+  function continuePomodoro(task) {
+    activePomodoro.value = {
+      taskId: task.id,
+      taskName: task.title,
+      startTime: activePomodoro.value.startTime
     };
   }
 
