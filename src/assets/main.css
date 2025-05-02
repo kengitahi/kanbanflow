@@ -1,6 +1,12 @@
 @import './base.css';
 @import 'tailwindcss';
 
+.dragging,
+.sortable-chosen {
+  opacity: 40;
+  cursor: grabbing;
+}
+
 .draggable-fade-enter-active,
 .draggable-fade-leave-active {
   transition: all 0.2s ease;

@@ -57,7 +57,7 @@ export const useBoardStore = defineStore('board', () => {
   loadBoard(); // Load the board first before watching for changes
 
   // --- Persistence: Watch only after loading
-  watch([columns, tasks, activePomodoro], () => {
+  watch([columns, tasks], () => {
     console.log("Store changed, saving to localStorage", {
       columnsCount: columns.value.length,
       tasksCount: tasks.value.length,
@@ -107,7 +107,13 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function removeTask(taskId) {
-    tasks.value = tasks.value.filter(task => task.id !== taskId);
+    if (confirm(`Are you sure you want to delete task "${tasks.value.find(t => t.id === taskId).title}"?`)) {
+      tasks.value = tasks.value.filter(task => task.id !== taskId);
+    }
+
+    if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
+      stopPomodoro();
+    }
   }
 
   function moveTask(taskId, targetColumnId) {
@@ -117,11 +123,7 @@ export const useBoardStore = defineStore('board', () => {
       const oldColumnId = task.columnId;
       task.columnId = targetColumnId;
 
-      console.log(`Task ${taskId} moved from ${oldColumnId} to ${targetColumnId}`);
-
-      // If moving to 'doing' column, prompt for pomodoro
-      if (targetColumnId === 'doing') {
-        console.log("Task moved to doing column, prompting pomodoro");
+      if (targetColumnId !== 'done' && targetColumnId !== 'todo') {
         promptPomodoro(task);
       }
 
@@ -166,10 +168,8 @@ export const useBoardStore = defineStore('board', () => {
   // --- Pomodoro
   function promptPomodoro(task) {
     console.log("Prompting pomodoro for task:", task);
-    const wantsTimer = confirm(`Start a Pomodoro session for "${task.title}"?`);
 
-    console.log("Wants timer:", wantsTimer);
-    if (wantsTimer) {
+    if (confirm(`Would you like to start a Pomodoro session for "${task.title}"?`)) {
       startPomodoro(task);
     }
   }
@@ -194,7 +194,7 @@ export const useBoardStore = defineStore('board', () => {
     console.log("Force setting pomodoro");
     activePomodoro.value = {
       taskId: "test-task",
-  taskName: "Test Task",
+      taskName: "Test Task",
       startTime: Date.now()
     };
     console.log("Pomodoro set:", activePomodoro.value);

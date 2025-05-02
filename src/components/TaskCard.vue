@@ -1,19 +1,39 @@
 <template>
   <div class="bg-white p-2 rounded shadow mb-2 flex justify-between items-center">
-    <input
-      v-if="showCheckbox"
-      type="checkbox"
-      @change="completeTask"
-      class="mt-1"
-    />
-    <span :class="{ 'line-through text-gray-500': task.completed }">
-      {{ task.title }}
-    </span>
-    <button
-      @click="remove"
-      class="text-sm text-red-500 hover:text-red-700"
-    >✕</button>
+    <div class="flex items-center gap-2">
+      <input
+        v-if="showCheckbox"
+        type="checkbox"
+        @change="completeTask"
+        class="mt-1"
+      />
+      <span :class="{ 'line-through text-gray-500': task.completed }">
+        {{ task.title }}
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        v-if="task.columnId !== 'done'"
+        @click="startPomodoro"
+        class="text-md px-1 bg-red-100 text-red-600 rounded hover:bg-red-200 cursor-pointer"
+        title="Start Pomodoro"
+        aria-label="Start Pomodoro for this task"
+      >
+        ⏱️
+      </button>
+      <button
+        @click="remove"
+        class="text-sm text-red-500 cursor-pointer hover:border-red-700 border rounded-full p-2.5 h-0.5 w-0.5 flex items-center justify-center"
+        title="Click to Remove task"
+      >
+        <span class="-mt-0.5">
+          ✕
+        </span>
+      </button>
+    </div>
   </div>
+
 </template>
 
 <script setup>
@@ -38,6 +58,16 @@
     // `&& props.task.columnId !== 'todo'`
     return props.task.columnId !== 'done';
   });
+
+  function startPomodoro() {
+    console.log("Starting Pomodoro for task:", props.task);
+
+    if (props.task.columnId == 'todo') {
+      store.moveTask(props.task.id, 'doing');
+    }
+
+    store.promptPomodoro(props.task);
+  }
 
   function completeTask() {
     store.markTaskComplete(props.task.id);

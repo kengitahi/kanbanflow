@@ -4,12 +4,14 @@
       <input
         v-model="name"
         @blur="rename"
-        class="bg-transparent font-bold text-lg focus:outline-none"
+        class="bg-transparent font-bold text-lg focus:outline-1 focus:rounded-sm p-1"
+        title="Click to Rename column"
       />
       <button
         v-if="!column.isDefault"
         @click="remove"
-        class="text-red-500 hover:text-red-700 text-sm"
+        class="text-red-500 hover:text-red-700 text-sm cursor-pointer"
+        title="Click to Remove column"
       >
         ✕
       </button>
@@ -21,7 +23,7 @@
       item-key="id"
       @change="onTaskMoved"
       class="flex-1 min-h-[50px] hover:cursor-grab"
-      ghost-class="opacity-40"
+      ghost-class="dragging"
     >
       <template #item='{ element }'>
         <TaskCard
@@ -78,7 +80,6 @@
   );
 
   function onTaskMoved(evt) {
-    console.log("onTaskMoved", evt);
     const movedTask = evt.added?.element;
 
     // const prevColumn = movedTask.columnId;
@@ -86,11 +87,6 @@
 
     if (movedTask) {
       store.moveTask(movedTask.id, newColumn);
-    }
-
-    // if the task was moved from anywhere else other than the done column, start a pomodoro
-    if (newColumn !== 'done' && newColumn !== 'todo') {
-      store.promptPomodoro(movedTask);
     }
   }
 
