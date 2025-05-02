@@ -1,20 +1,5 @@
 <template>
   <div class="flex gap-4 overflow-x-auto flex-col">
-    <!-- Debug info -->
-    <div class="bg-gray-100 p-2 mb-4 rounded text-xs">
-      <p>Debug: activePomodoro exists: {{ store.activePomodoro !== null }}</p>
-      <p v-if="store.activePomodoro">Task name: {{ store.activePomodoro.taskName }}</p>
-      <p v-if="store.activePomodoro">Start time: {{ store.activePomodoro.startTime }}</p>
-      <p v-if="store.activePomodoro">Start time: {{ store.activePomodoro }}</p>
-
-      <button
-        @click="testPomodoro"
-        class="bg-blue-500 text-white px-2 py-1 rounded mt-1"
-      >
-        Test Pomodoro
-      </button>
-    </div>
-
     <div class="gap-4 flex">
       <Column
         v-for="col in columns"
@@ -65,7 +50,6 @@
   let timerInterval;
 
   onMounted(() => {
-    console.log("Component mounted, activePomodoro:", store.activePomodoro);
     timerInterval = setInterval(() => {
       currentTime.value = Date.now();
     }, 1000);
@@ -75,18 +59,6 @@
   onUnmounted(() => {
     clearInterval(timerInterval);
   });
-
-  // For testing - creates a test pomodoro session
-  function testPomodoro() {
-    console.log("Creating test pomodoro");
-    // Directly call the store method instead of trying to modify the ref
-    const testTask = {
-      id: "test-task",
-      title: "Test Task"
-    };
-    store.startPomodoro(testTask);
-    console.log("After setting:", store.activePomodoro);
-  }
 
   // Calculate time since the pomodoro started
   const timeSinceStart = computed(() => {

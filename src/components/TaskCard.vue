@@ -5,7 +5,8 @@
         v-if="showCheckbox"
         type="checkbox"
         @change="completeTask"
-        class="mt-1"
+        class="mt-1 cursor-pointer"
+        title="Mark task as completed"
       />
       <span :class="{ 'line-through text-gray-500': task.completed }">
         {{ task.title }}
@@ -60,13 +61,13 @@
   });
 
   function startPomodoro() {
-    console.log("Starting Pomodoro for task:", props.task);
-
     if (props.task.columnId == 'todo') {
       store.moveTask(props.task.id, 'doing');
+    } else {
+      store.promptPomodoro(props.task);
     }
 
-    store.promptPomodoro(props.task);
+
   }
 
   function completeTask() {

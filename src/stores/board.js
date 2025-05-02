@@ -17,53 +17,38 @@ export const useBoardStore = defineStore('board', () => {
   // Initialize activePomodoro with null
   const activePomodoro = ref(null);
 
-  console.log("Store initialized");
-
   // --- Load from localStorage before setting up the watcher ---
   function loadBoard() {
-    console.log("Loading board from localStorage");
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const savedBoard = localStorage.getItem(STORAGE_KEY);
 
-    if (saved) {
+    if (savedBoard) {
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(savedBoard);
         columns.value = parsed.columns || [...defaultColumns];
         tasks.value = parsed.tasks || [];
 
         // Also load activePomodoro if it exists
         if (parsed.activePomodoro) {
-          console.log("Found activePomodoro in localStorage:", parsed.activePomodoro);
           activePomodoro.value = parsed.activePomodoro;
-        } else {
-          console.log("No activePomodoro in localStorage");
         }
       } catch (e) {
-        console.error('Failed to parse stored data:', e);
         // Reset to defaults if parsing fails
         columns.value = [...defaultColumns];
         tasks.value = [];
         activePomodoro.value = null;
       }
     } else {
-      console.log("No saved board found, using defaults");
+      // Load defaults if no saved board
       columns.value = [...defaultColumns];
       tasks.value = [];
       activePomodoro.value = null;
     }
-
-    console.log("Board loaded, activePomodoro:", activePomodoro.value);
   }
 
   loadBoard(); // Load the board first before watching for changes
 
   // --- Persistence: Watch only after loading
   watch([columns, tasks], () => {
-    console.log("Store changed, saving to localStorage", {
-      columnsCount: columns.value.length,
-      tasksCount: tasks.value.length,
-      activePomodoro: activePomodoro.value
-    });
-
     const data = {
       columns: columns.value,
       tasks: tasks.value,
@@ -132,6 +117,10 @@ export const useBoardStore = defineStore('board', () => {
         triggerConfetti();
 
         // TODO: Add functionality to either stop pomo or start a new one
+        //For now, just stop it
+        if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
+          stopPomodoro();
+        }
       } else {
         task.completed = false;
       }
@@ -167,37 +156,21 @@ export const useBoardStore = defineStore('board', () => {
 
   // --- Pomodoro
   function promptPomodoro(task) {
-    console.log("Prompting pomodoro for task:", task);
-
     if (confirm(`Would you like to start a Pomodoro session for "${task.title}"?`)) {
       startPomodoro(task);
     }
   }
 
   function startPomodoro(task) {
-    console.log("Starting pomodoro for task:", task);
     activePomodoro.value = {
       taskId: task.id,
       taskName: task.title,
-      startTime: Date.now() // Changed from startedAt to startTime to match component
+      startTime: Date.now()
     };
-    console.log("Active pomodoro state after setting:", activePomodoro.value);
   }
 
   function stopPomodoro() {
-    console.log("Stopping pomodoro");
     activePomodoro.value = null;
-  }
-
-  // Force set a pomodoro (for testing)
-  function forcePomodoro() {
-    console.log("Force setting pomodoro");
-    activePomodoro.value = {
-      taskId: "test-task",
-      taskName: "Test Task",
-      startTime: Date.now()
-    };
-    console.log("Pomodoro set:", activePomodoro.value);
   }
 
   return {
@@ -216,6 +189,5 @@ export const useBoardStore = defineStore('board', () => {
     promptPomodoro,
     startPomodoro,
     stopPomodoro,
-    forcePomodoro // Added for testing
   };
 });
