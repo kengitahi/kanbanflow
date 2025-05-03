@@ -24,7 +24,7 @@
 
     <p class="font-bold text-lg text-gray-700">
       ⏱️ Working on: <span class="text-green-600 capitalize font-semibold underline">{{ store.activePomodoro.taskName
-      }}</span>
+        }}</span>
     </p>
 
     <!-- Show when session started -->
@@ -93,7 +93,7 @@
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
 
-  // Optional: Show session is complete
+  // Show session is complete
   const isSessionOver = computed(() => {
     return endTime.value && currentTime.value >= endTime.value;
   });
