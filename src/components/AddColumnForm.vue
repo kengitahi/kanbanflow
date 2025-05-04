@@ -1,9 +1,7 @@
 <template>
-  <div class="min-w-[250px]">
-    <form
-      @submit.prevent="handleAdd"
-      class="bg-white p-4 rounded-lg shadow"
-    >
+  <div class="max-w-[500px] bg-white p-4 rounded-lg shadow">
+    <h2 class="text-lg font-bold mb-2">Add a New Column</h2>
+    <form @submit.prevent="handleAdd">
       <input
         v-model="newColumn"
         placeholder="Enter a name for the the new column"
