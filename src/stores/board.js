@@ -3,8 +3,6 @@ import { ref, watch } from 'vue';
 
 import confetti from 'canvas-confetti';
 
-import { timerSettings } from '@/utils/TimerSettings';
-
 const STORAGE_KEY = 'kanban-board';
 
 export const useBoardStore = defineStore('board', () => {
@@ -16,13 +14,6 @@ export const useBoardStore = defineStore('board', () => {
 
   const columns = ref([]);
   const tasks = ref([]);
-
-  //Session refs
-  const startedAt = ref(null);
-  const endTime = ref(null);
-  const mode = ref('work'); // 'work' | 'shortBreak' | 'longBreak'
-  const running = ref(false);
-
   // Initialize activePomodoro with null
   const activePomodoro = ref(null);
 
@@ -211,8 +202,6 @@ export const useBoardStore = defineStore('board', () => {
       taskName: task.title,
       startTime: Date.now()
     };
-
-    startSession('work');
   }
 
   function continuePomodoro(task) {
@@ -225,21 +214,6 @@ export const useBoardStore = defineStore('board', () => {
 
   function stopPomodoro() {
     activePomodoro.value = null;
-  }
-
-  // Start a session
-  function startSession(newMode = 'work') {
-    mode.value = newMode;
-    startedAt.value = activePomodoro.value.startTime;
-
-    const duration = {
-      work: timerSettings.workDuration,
-      shortBreak: timerSettings.shortBreakDuration,
-      longBreak: timerSettings.longBreakDuration
-    }[newMode];
-
-    endTime.value = startedAt.value + duration;
-    running.value = true;
   }
 
   return {
