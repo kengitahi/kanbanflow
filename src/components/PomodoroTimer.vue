@@ -76,6 +76,7 @@
   function startSession(newMode) {
     mode.value = newMode;
     startedAt.value = Date.now();
+    running.value = true;
 
     const duration = {
       work: timerSettings.workDuration,
@@ -108,12 +109,12 @@
   const timeRemaining = computed(() => {
     if (!endTime.value || !running.value) return '00:00';
 
-    const diff = endTime.value - currentTime.value;
+    const diff = Math.floor((endTime.value - currentTime.value) / 1000);
 
     const remaining = Math.max(diff, 0);
 
-    const minutes = Math.floor(remaining / 60000);
-    const seconds = Math.floor((remaining % 60000) / 1000);
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
 
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
