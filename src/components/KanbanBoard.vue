@@ -11,7 +11,7 @@
   </div>
 
   <!-- Pomodoro Active Session UI -->
-  <PomodoroTimer />
+  <PomodoroTimer v-if="store.activePomodoro" />
 </template>
 
 <script setup>

@@ -1,8 +1,15 @@
 <template>
   <div
-    v-if="store.activePomodoro"
-    class="fixed top-4 right-4 z-50 bg-white border border-gray-300 rounded-xl shadow-lg p-4 max-w-xs flex flex-col gap-2"
+    class="fixed top-4 right-4 z-50 bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-w-xs flex flex-col gap-2"
   >
+    <h2 class="text-lg font-bold capitalize mb-1">
+      {{ modeLabel }} Session
+    </h2>
+
+    <p class="text-sm text-gray-500">
+      ✅ Completed Work Sessions: {{ sessionCount }}
+    </p>
+
     <p
       v-if="isSessionOver"
       class="text-green-600 mt-2"
@@ -10,23 +17,23 @@
       Session Complete!
     </p>
 
-    <p class="font-bold text-lg text-gray-700">
-      ⏱️ Working on: <span class="text-green-600 capitalize font-semibold underline">{{ store.activePomodoro.taskName
+    <p class="font-bold text-md text-gray-700">
+      🕛 Working on: <span class="text-green-600 capitalize font-semibold underline">{{ store.activePomodoro.taskName
       }}</span>
     </p>
 
     <!-- Show when session started -->
-    <p class="text-sm">
-      Time Spent Focusing: <span class="text-green-500">{{ timeSinceStart }}</span>
+    <p class="text-sm text-gray-500">
+      🕓 Time Spent Focusing: <span class="text-green-500">{{ timeSinceStart }}</span>
     </p>
 
-    <p class="text-sm">
-      Remaining Time: <span class="text-red-500">{{ timeRemaining }}</span>
+    <p class="text-sm text-gray-500">
+      ⌛ Remaining Time: <span class="text-red-500">{{ timeRemaining }}</span>
     </p>
 
     <button
       @click="store.stopPomodoro()"
-      class="text-sm bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition"
+      class="text-sm bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition hover:shadow-md hover:cursor-pointer"
     >
       Stop Session
     </button>
@@ -34,11 +41,18 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, onUnmounted, ref } from 'vue';
+  import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
   import { useBoardStore } from '@/stores/board';
   import { timerSettings } from '@/utils/TimerSettings';
 
   const store = useBoardStore();
+
+  // Reactive states
+  const mode = ref('work'); // 'work' | 'shortBreak' | 'longBreak'
+  const sessionCount = ref(0);
+  const startedAt = ref(null);
+  const endTime = ref(null);
+  const running = ref(false);
 
   // Make sure the timer updates regularly
   const currentTime = ref(Date.now());
@@ -58,18 +72,44 @@
     clearInterval(timerInterval);
   });
 
-  // Set end time when Pomodoro starts
-  const endTime = computed(() => {
-    if (!store.activePomodoro) return null;
+  // Start session
+  function startSession(newMode) {
+    mode.value = newMode;
+    startedAt.value = Date.now();
 
-    return store.activePomodoro.startTime + timerSettings.workDuration;
+    const duration = {
+      work: timerSettings.workDuration,
+      shortBreak: timerSettings.shortBreakDuration,
+      longBreak: timerSettings.longBreakDuration
+    }[newMode];
+
+    endTime.value = startedAt.value + duration;
+    running.value = true;
+  }
+
+  // Handle automatic transitions
+  watch(currentTime, (newCurrentTime) => {
+    if (!running.value || !endTime.value) return;
+
+    if (newCurrentTime >= endTime.value) {
+      running.value = false;
+
+      if (mode.value === 'work') {
+        sessionCount.value++;
+        const nextMode = sessionCount.value % 4 === 0 ? 'longBreak' : 'shortBreak';
+        startSession(nextMode);
+      } else {
+        startSession('work');
+      }
+    }
   });
 
   // Calculate remaining time
   const timeRemaining = computed(() => {
-    if (!endTime.value) return '00:00';
+    if (!endTime.value || !running.value) return '00:00';
 
     const diff = endTime.value - currentTime.value;
+
     const remaining = Math.max(diff, 0);
 
     const minutes = Math.floor(remaining / 60000);
@@ -94,4 +134,15 @@
     return endTime.value && currentTime.value >= endTime.value;
   });
 
+  // Display label
+  const modeLabel = computed(() => {
+    return {
+      work: 'Work',
+      shortBreak: 'Short Break',
+      longBreak: 'Long Break'
+    }[mode.value];
+  });
+
+  // Kick off first session on mount
+  startSession('work');
 </script>
