@@ -214,6 +214,7 @@ export const useBoardStore = defineStore('board', () => {
 
   function stopPomodoro() {
     activePomodoro.value = null;
+    
   }
 
   return {

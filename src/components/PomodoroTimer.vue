@@ -33,9 +33,33 @@
 
     <div class="flex gap-2">
       <button
+        class="px-3 py-1 rounded bg-blue-500 text-white text-sm hover:bg-blue-600 transition hover:shadow-md hover:cursor-pointer"
+        @click="startSession('work')"
+      >
+        Start Work
+      </button>
+      <button
+        class="px-3 py-1 rounded bg-green-500 text-white text-sm hover:bg-green-600 transition hover:shadow-md hover:cursor-pointer"
+        @click="startSession('shortBreak')"
+      >
+        Short Break
+      </button>
+      <button
+        class="px-3 py-1 rounded bg-purple-500 text-white text-sm hover:bg-purple-600 transition hover:shadow-md hover:cursor-pointer"
+        @click="startSession('longBreak')"
+      >
+        Long Break
+      </button>
+    </div>
+
+    <hr class="my-2 border-gray-300">
+
+    <div class="flex gap-2">
+      <button
+        @click="resetTimer()"
         class="text-sm bg-yellow-500 text-white py-1 px-3 rounded hover:bg-yellow-600 transition hover:shadow-md hover:cursor-pointer"
       >
-        Pause Session
+        Reset Session
       </button>
       <button
         @click="store.stopPomodoro()"
@@ -96,6 +120,22 @@
 
     endTime.value = startedAt.value + duration;
   }
+
+  // Reset the current timer session
+function resetTimer() {
+  sessionCount.value = 0;
+
+  //destructure current task
+  const { taskId } = store.activePomodoro;
+  //Find the task with that id
+  const task = store.tasks.find(task => task.id === taskId);
+
+  if(confirm(`Are you sure you want to reset the timer for "${task.title}"?`)) {
+    store.startPomodoro(task);
+  }else{
+    store.promptPomodoro(task);
+}
+}
 
   // Handle automatic transitions
   watch(currentTime, (newCurrentTime) => {
