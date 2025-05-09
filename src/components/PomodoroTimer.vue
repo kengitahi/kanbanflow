@@ -31,12 +31,19 @@
       ⌛ Remaining Time: <span class="text-red-500">{{ timeRemaining }}</span>
     </p>
 
-    <button
-      @click="store.stopPomodoro()"
-      class="text-sm bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition hover:shadow-md hover:cursor-pointer"
-    >
-      Stop Session
-    </button>
+    <div class="flex gap-2">
+      <button
+        class="text-sm bg-yellow-500 text-white py-1 px-3 rounded hover:bg-yellow-600 transition hover:shadow-md hover:cursor-pointer"
+      >
+        Pause Session
+      </button>
+      <button
+        @click="store.stopPomodoro()"
+        class="text-sm bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition hover:shadow-md hover:cursor-pointer"
+      >
+        Stop Session
+      </button>
+    </div>
   </div>
 </template>
 
@@ -65,6 +72,9 @@
     timerInterval = setInterval(() => {
       currentTime.value = Date.now();
     }, 1000);
+
+    // Kick off first session on mount
+    startSession('work');
   });
 
   // Clean up the interval when component unmounts
@@ -85,7 +95,6 @@
     }[newMode];
 
     endTime.value = startedAt.value + duration;
-    running.value = true;
   }
 
   // Handle automatic transitions
@@ -143,7 +152,4 @@
       longBreak: 'Long Break'
     }[mode.value];
   });
-
-  // Kick off first session on mount
-  startSession('work');
 </script>
