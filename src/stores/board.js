@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { onMounted, ref, watch } from 'vue';
 
-import { usePomodoro } from '@/stores/pomodoro';
+import { usePomodoroStore } from '@/stores/pomodoro';
 
 import confetti from 'canvas-confetti';
 
@@ -14,12 +14,7 @@ export const useBoardStore = defineStore('board', () => {
     { id: 'done', name: 'Done', color: 'bg-green-200', isDefault: true },
   ];
 
-  const pomodoroStore = usePomodoro();
-
-  // TODO: Remove this, for testing only
-  onMounted(() => {
-    pomodoroStore.testFunction();
-  });
+  const pomodoroStore = usePomodoroStore();
 
   const columns = ref([]);
   const tasks = ref([]);
@@ -136,7 +131,7 @@ export const useBoardStore = defineStore('board', () => {
     }
 
     if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
-      stopPomodoro();
+      pomodoroStore.stopSession();
     }
   }
 
@@ -151,15 +146,18 @@ export const useBoardStore = defineStore('board', () => {
         promptPomodoro(task);
       }
 
+      if (targetColumnId == 'done' || targetColumnId == 'todo') {
+        console.log('Moving task to done or todo column');
+        if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
+          stopPomodoro();
+          pomodoroStore.stopTimer();
+        }
+      }
+
       if (targetColumnId === 'done') {
         markTaskComplete(taskId);
         triggerConfetti();
-
-        // TODO: Add functionality to either stop pomo or start a new one
-        //For now, just stop it
-        if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
-          stopPomodoro();
-        }
+        pomodoroStore.changeMode('work');
       } else {
         task.completed = false;
       }
@@ -198,21 +196,27 @@ export const useBoardStore = defineStore('board', () => {
     if (confirm(`Would you like to start a new Pomodoro session for "${task.title}"?`)) {
       startPomodoro(task);
     } else {
-      //If they do not start a new pomo, ask them to continue with the one running
-      if (confirm(`Would you like to continue the ongoing Pomodoro session with the new task "${task.title}"?`)) {
-        continuePomodoro(task);
+      console.log('Pomodoro session not started for task:', task.title);
+      if (activePomodoro.value) {
+        console.log('Active Pomodoro session exists:', activePomodoro.value);
+        //If they have an active pomo, ask them if they want to continue
+        if (confirm(`Would you like to continue the ongoing Pomodoro session with the new task "${task.title}"?`)) {
+          continuePomodoro(task);
+        }
       }
     }
   }
 
   function startPomodoro(task) {
-    pomodoroStore.startTimer();
+    pomodoroStore.stopSession();
+    pomodoroStore.changeMode('work');
 
     activePomodoro.value = {
       taskId: task.id,
       taskName: task.title,
       startTime: Date.now()
     };
+    pomodoroStore.startTimer();
   }
 
   function continuePomodoro(task) {
@@ -224,9 +228,7 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function stopPomodoro() {
-    pomodoroStore.stopTimer();
     activePomodoro.value = null;
-
   }
 
   return {

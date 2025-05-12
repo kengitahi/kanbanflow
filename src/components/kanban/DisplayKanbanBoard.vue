@@ -9,9 +9,6 @@
     </div>
     <AddColumnForm />
   </div>
-
-  <!-- Pomodoro Active Session UI -->
-  <DisplayPomodoro/>
 </template>
 
 <script setup>
@@ -19,7 +16,6 @@
 
   import Column from '@/components/kanban/SingleColumn.vue';
   import AddColumnForm from '@/components/kanban/AddColumnForm.vue';
-  import DisplayPomodoro from '@/components/pomodoro/DisplayPomodoro.vue';
 
   const boardStore = useBoardStore();
   const { columns } = boardStore;

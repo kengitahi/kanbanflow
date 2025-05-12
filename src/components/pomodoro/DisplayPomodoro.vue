@@ -1,65 +1,62 @@
 <template>
   <div class="container mx-auto p-4">
     <div class="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
-      <h1 class="text-3xl font-bold text-center mb-6">Pomodoro Timer</h1>
-
       <PomodoroTimer
-        :formattedTime="formattedTime"
-        :modeLabel="modeLabel"
-        :modeColor="modeColor"
+        :formattedTime="pomodoroStore.formattedTime"
+        :modeLabel="pomodoroStore.modeLabel"
+        :modeColor="pomodoroStore.modeColor"
       />
 
       <ModeSelector
         :modes="TIMER_CONFIG"
-        :currentMode="currentMode"
-        :onModeSelect="changeMode"
+        :currentMode="pomodoroStore.currentMode"
+        :onModeSelect="pomodoroStore.changeMode"
       />
 
       <div class="flex flex-wrap justify-center mt-6">
         <ControlButton
-          :label="isRunning ? 'Pause Session' : 'Start Session'"
-          :onClick="toggleTimer"
+          :disabled="!boardStore.activePomodoro"
+          class="disabled:opacity-50 disabled:cursor-not-allowed"
+          :label="pomodoroStore.isRunning ? 'Pause Session' : 'Resume Session'"
+          :onClick="pomodoroStore.toggleTimer"
           variant="primary"
+          :title="boardStore.activePomodoro? 'Click to pause or resume the pomodoro session' : 'Please start a pomodoro session first' "
         />
 
         <ControlButton
+          :disabled="!boardStore.activePomodoro"
+          class="disabled:opacity-50 disabled:cursor-not-allowed"
           label="Reset Timer"
-          :onClick="resetTimer"
+          :onClick="pomodoroStore.resetTimer"
           variant="secondary"
+          :title="boardStore.activePomodoro ? 'Click to reset the ongoing pomodoro session' : 'Please start a pomodoro session first'"
         />
 
         <ControlButton
+          :disabled="!boardStore.activePomodoro"
+          class="disabled:opacity-50 disabled:cursor-not-allowed"
           label="Stop Session"
-          :onClick="stopTimer"
+          :onClick="pomodoroStore.stopSession"
           variant="danger"
+          :title="boardStore.activePomodoro ? 'Click to stop the ongoing pomodoro session' : 'Please start a pomodoro session first'"
         />
       </div>
 
       <div class="mt-6 text-center">
-        <p class="text-gray-600">Sessions Completed: {{ sessionsCompleted }}</p>
+        <p class="text-gray-600">Sessions Completed: {{ pomodoroStore.sessionsCompleted }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { usePomodoro } from '@/stores/pomodoro';
+  import { usePomodoroStore } from '@/stores/pomodoro';
+  import { useBoardStore } from '@/stores/board';
   import TIMER_CONFIG from '@/config/PomodoroTimerConfig';
   import PomodoroTimer from '@/components/pomodoro/PomodoroTimer.vue';
   import ControlButton from '@/components/buttons/ControlButton.vue';
   import ModeSelector from '@/components/pomodoro/ModeSelector.vue';
 
-  // Use the timer composable
-  const {
-    currentMode,
-    isRunning,
-    sessionsCompleted,
-    formattedTime,
-    modeLabel,
-    modeColor,
-    toggleTimer,
-    resetTimer,
-    stopTimer,
-    changeMode,
-  } = usePomodoro();
+  const pomodoroStore = usePomodoroStore();
+  const boardStore = useBoardStore();
 </script>

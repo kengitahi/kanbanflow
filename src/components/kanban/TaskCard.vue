@@ -69,8 +69,6 @@
     } else {
       store.promptPomodoro(props.task);
     }
-
-
   }
 
   function completeTask() {

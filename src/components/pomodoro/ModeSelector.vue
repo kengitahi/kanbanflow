@@ -10,14 +10,20 @@
           ? config.color + ' text-white'
           : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
       ]"
+      :disabled="!boardStore.activePomodoro"
+      class="disabled:opacity-50 disabled:cursor-not-allowed"
+      :title="boardStore.activePomodoro ? 'Click to start ' + config.label : 'Please start a pomodoro session first'"
     >
-      {{ config.label }}
+      Start {{ config.label }}
     </button>
   </div>
 </template>
 
 <script setup>
   import { defineProps } from 'vue';
+  import { useBoardStore } from '@/stores/board';
+
+  const boardStore = useBoardStore();
 
   // Define props
   defineProps({
