@@ -21,6 +21,6 @@
   import AddColumnForm from '@/components/kanban/AddColumnForm.vue';
   import DisplayPomodoro from '@/components/pomodoro/DisplayPomodoro.vue';
 
-  const store = useBoardStore();
-  const { columns } = store;
+  const boardStore = useBoardStore();
+  const { columns } = boardStore;
 </script>

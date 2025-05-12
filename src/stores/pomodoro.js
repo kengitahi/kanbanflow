@@ -1,5 +1,7 @@
 import { ref, computed, watch } from 'vue';
+
 import TIMER_CONFIG from '@/config/PomodoroTimerConfig';
+
 
 export function usePomodoro() {
   const currentMode = ref('work');
@@ -35,6 +37,7 @@ export function usePomodoro() {
 
   //Timer functions
   function startTimer() {
+    console.log('Starting timer on pomodoro.js');
     if (timerInterval) {
       clearInterval(timerInterval);
     }
@@ -117,6 +120,11 @@ export function usePomodoro() {
     }
   }
 
+  // TODO: Remove this, for testing only
+  function testFunction() {
+    console.log('pomodoro board imported');
+  }
+
   // Reset timer to the new mode's time
   resetTimer();
 
@@ -136,6 +144,7 @@ export function usePomodoro() {
     stopTimer,
     completeTimer,
     changeMode,
+    testFunction //For testing
   };
 
 }

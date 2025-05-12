@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+
+import { usePomodoro } from '@/stores/pomodoro';
 
 import confetti from 'canvas-confetti';
 
@@ -11,6 +13,13 @@ export const useBoardStore = defineStore('board', () => {
     { id: 'doing', name: 'Doing', color: 'bg-yellow-200', isDefault: true },
     { id: 'done', name: 'Done', color: 'bg-green-200', isDefault: true },
   ];
+
+  const pomodoroStore = usePomodoro();
+
+  // TODO: Remove this, for testing only
+  onMounted(() => {
+    pomodoroStore.testFunction();
+  });
 
   const columns = ref([]);
   const tasks = ref([]);
@@ -197,6 +206,8 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function startPomodoro(task) {
+    pomodoroStore.startTimer();
+
     activePomodoro.value = {
       taskId: task.id,
       taskName: task.title,
@@ -213,8 +224,9 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function stopPomodoro() {
+    pomodoroStore.stopTimer();
     activePomodoro.value = null;
-    
+
   }
 
   return {
