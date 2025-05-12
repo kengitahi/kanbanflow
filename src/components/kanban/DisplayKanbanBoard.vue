@@ -11,15 +11,15 @@
   </div>
 
   <!-- Pomodoro Active Session UI -->
-  <PomodoroTimer v-if="store.activePomodoro" />
+  <DisplayPomodoro/>
 </template>
 
 <script setup>
   import { useBoardStore } from '@/stores/board';
 
-  import Column from './SingleColumn.vue';
-  import AddColumnForm from './AddColumnForm.vue';
-  import PomodoroTimer from './PomodoroTimer.vue';
+  import Column from '@/components/kanban/SingleColumn.vue';
+  import AddColumnForm from '@/components/kanban/AddColumnForm.vue';
+  import DisplayPomodoro from '@/components/pomodoro/DisplayPomodoro.vue';
 
   const store = useBoardStore();
   const { columns } = store;

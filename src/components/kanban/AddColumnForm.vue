@@ -19,7 +19,7 @@
 
 <script setup>
   import { ref } from 'vue';
-  import { useBoardStore } from '../stores/board';
+  import { useBoardStore } from '@/stores/board';
 
   const store = useBoardStore();
   const newColumn = ref('');

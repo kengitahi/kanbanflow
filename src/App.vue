@@ -6,5 +6,5 @@
 </template>
 
 <script setup>
-  import KanbanBoard from './components/KanbanBoard.vue';
+  import KanbanBoard from './components/kanban/DisplayKanbanBoard.vue';
 </script>

@@ -43,9 +43,9 @@
 
 <script setup>
   import { ref, watch, computed } from 'vue';
-  import { useBoardStore } from '../stores/board';
-  import TaskCard from './TaskCard.vue';
-  import AddTaskForm from './AddTaskForm.vue';
+  import { useBoardStore } from '@/stores/board';
+  import TaskCard from '@/components/kanban/TaskCard.vue';
+  import AddTaskForm from '@/components/kanban/AddTaskForm.vue';
   import draggable from 'vuedraggable';
 
   const props = defineProps({
