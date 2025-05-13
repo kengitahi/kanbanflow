@@ -2,19 +2,21 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
 import { usePomodoroStore } from '@/stores/pomodoro';
+import { usePomodoroModalStore } from '@/stores/pomodoroModal';
 
 import confetti from 'canvas-confetti';
 
 const Kanban_STORAGE_KEY = 'kanban-board';
 
 export const useBoardStore = defineStore('board', () => {
+  const pomodoroStore = usePomodoroStore();
+  const pomodoroModalStore = usePomodoroModalStore();
+
   const defaultColumns = [
     { id: 'todo', name: 'To Do', color: 'bg-blue-200', isDefault: true },
     { id: 'doing', name: 'Doing', color: 'bg-yellow-200', isDefault: true },
     { id: 'done', name: 'Done', color: 'bg-green-200', isDefault: true },
   ];
-
-  const pomodoroStore = usePomodoroStore();
 
   const columns = ref([]);
   const tasks = ref([]);
@@ -192,16 +194,25 @@ export const useBoardStore = defineStore('board', () => {
 
   // --- Pomodoro
   function promptPomodoro(task) {
-    if (confirm(`Would you like to start a new Pomodoro session for "${task.title}"?`)) {
-      startPomodoro(task);
-    } else {
-      if (activePomodoro.value) {
-        //If they have an active pomo, ask them if they want to continue
-        if (confirm(`Would you like to continue the ongoing Pomodoro session with the new task "${task.title}"?`)) {
-          continuePomodoro(task);
-        }
+    // Open the Pomodoro modal
+    pomodoroModalStore.openModal();
+    pomodoroModalStore.handleSelectedOption = (option) => {
+      if (option === 'start') {
+        startPomodoro(task);
+      } else if (option === 'continue') {
+        continuePomodoro(task);
       }
-    }
+    };
+    // if (confirm(`Would you like to start a new Pomodoro session for "${task.title}"?`)) {
+    //   startPomodoro(task);
+    // } else {
+    //   if (activePomodoro.value) {
+    //     //If they have an active pomo, ask them if they want to continue
+    //     if (confirm(`Would you like to continue the ongoing Pomodoro session with the new task "${task.title}"?`)) {
+    //       continuePomodoro(task);
+    //     }
+    //   }
+    // }
   }
 
   function startPomodoro(task) {
