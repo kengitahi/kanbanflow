@@ -1,7 +1,10 @@
 import { ref, computed, watch } from 'vue';
 import { defineStore } from 'pinia';
 import TIMER_CONFIG from '@/config/PomodoroTimerConfig';
+
 import { useBoardStore } from '@/stores/board';
+
+const POMODORO_STORAGE_KEY = 'pomodoro-timer';
 
 export const usePomodoroStore = defineStore('pomodoro', () => {
   const currentMode = ref('work');
@@ -13,6 +16,8 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   const boardStore = useBoardStore();
 
   let timerInterval = null;
+  //Track times on load
+  let savedTimeStamp = null;
 
   // Computed properties
   const formattedTime = computed(() => {
@@ -22,45 +27,124 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   });
 
-  const modeLabel = computed(() => {
-    return TIMER_CONFIG[currentMode.value].label || 'Work'; // Add fallback;
-  });
+  const modeConfig = computed(() => TIMER_CONFIG[currentMode.value] || TIMER_CONFIG.work);
 
-  const modeColor = computed(() => {
-    return TIMER_CONFIG[currentMode.value].color || 'bg-blue-500'; // Add fallback;
-  });
+  const modeLabel = computed(() => modeConfig.value.label || 'Work');
 
-  // Watch for mode changes to update the timer
-  watch(currentMode, (newMode) => {
-    // Ensure newMode exists in config
-    if (TIMER_CONFIG[newMode]) {
-      minutes.value = TIMER_CONFIG[newMode].duration;
-      seconds.value = 0;
-      // If the timer was running, stop it before changing mode duration
-      if (isRunning.value) {
-        stopTimer(); // This calls pauseTimer and resetTimer
-        // Optionally restart timer in new mode if desired, or leave it stopped.
-        startTimer();
+  const modeColor = computed(() => modeConfig.value.color || 'bg-blue-500');
+
+
+
+  // --- Internal Functions ---
+  function saveState() {
+    try {
+      const stateToSave = {
+        currentMode: currentMode.value,
+        minutes: minutes.value,
+        seconds: seconds.value,
+        isRunning: isRunning.value,
+        sessionsCompleted: sessionsCompleted.value,
+        // If currently running, save the exact time to calculate elapsed time on reload
+        savedTimestamp: isRunning.value ? Date.now() : null,
+      };
+      localStorage.setItem(POMODORO_STORAGE_KEY, JSON.stringify(stateToSave));
+      console.log('Pomodoro state saved:', stateToSave);
+    } catch (error) {
+      console.error('Error saving Pomodoro state to localStorage:', error);
+    }
+  }
+
+  function loadState() {
+    try {
+      const savedPomodoro = localStorage.getItem(POMODORO_STORAGE_KEY);
+
+      if (savedPomodoro) {
+        const localTimerState = JSON.parse(savedPomodoro);
+        console.log('Pomodoro state loaded:', localTimerState);
+
+        currentMode.value = localTimerState.currentMode || TIMER_CONFIG.work.id;
+        sessionsCompleted.value = localTimerState.sessionsCompleted || 0;
+
+        if (localTimerState.isRunning && localTimerState.savedTimestamp) {
+          const elapsedMilliseconds = Date.now() - localTimerState.savedTimestamp;
+          const elapsedSecondsTotal = Math.floor(elapsedMilliseconds / 1000);
+
+          const totalSecondsRemainingAtSave = (localTimerState.minutes * 60) + localTimerState.seconds;
+          let newTotalSecondsRemaining = totalSecondsRemainingAtSave - elapsedSecondsTotal;
+
+          if (newTotalSecondsRemaining <= 0) {
+            // Timer would have completed while page was closed
+            minutes.value = 0;
+            seconds.value = 0;
+            isRunning.value = false; // Mark as not running before completing
+            clearTimerInterval(); // Ensure no old interval lingers
+            completeTimer(true); // Pass flag to indicate it's a load-time completion
+          } else {
+            minutes.value = Math.floor(newTotalSecondsRemaining / 60);
+            seconds.value = newTotalSecondsRemaining % 60;
+            startTimer(true); // Pass flag to indicate it's a resume
+          }
+        } else {
+          // Not running, or no valid timestamp to resume from
+          minutes.value = localTimerState.minutes !== undefined ? localTimerState.minutes : modeConfig.value.duration;
+          seconds.value = localTimerState.seconds !== undefined ? localTimerState.seconds : 0;
+          isRunning.value = false;
+        }
       } else {
-        resetTimer(); // Reset to the new mode's time
+        // No saved state, initialize with current mode's default duration
+        resetTimerToBase();
+      }
+    } catch (error) {
+      console.error('Error loading Pomodoro state from localStorage:', error);
+      // Fallback to default if loading fails
+      resetTimerToBase();
+    }
+  }
+
+  // --- Initialization ---
+  loadState(); // Load saved state when store is initialized and before watching
+
+  // --- Watchers ---
+  // Watch for mode changes to update the timer duration and reset
+  watch(currentMode, (newModeId, oldModeId) => {
+    if (newModeId === oldModeId) return; // No change
+
+    console.log(`Mode changed from ${oldModeId} to ${newModeId}. Resetting timer.`);
+
+    resetTimerToBase();
+
+    const previousModeConfig = TIMER_CONFIG[oldModeId] || TIMER_CONFIG.work;
+    const newModeConfig = TIMER_CONFIG[newModeId] || TIMER_CONFIG.work;
+
+    // If the old timer was a work timer or a break timer that should auto-transition
+    if (previousModeConfig.autoStartNext !== false && newModeConfig.autoStart !== false) {
+      // we want the next one to auto-start, we  call startTimer() here.
+      if (!isRunning.value) { //If it's not already running (e.g. due to resume)
+        startTimer();
       }
     } else {
-      console.warn(`Invalid Pomodoro mode attempted: ${newMode}`);
-      // Reset to a default mode like 'work'
-      currentMode.value = 'work';
+      // If no auto-start, just save the new reset state
+      saveState();
     }
-  });
+  }, { immediate: false }); // `immediate: false` to avoid running on initial load before _loadState
 
-  //Timer functions
-  function startTimer() {
-    console.log('Starting timer on pomodoro store'); // Log store start
-    // if (isRunning.value) {
-    //   console.log('Timer already running');
-    //   return; // Don't start if already running
-    // }
-    if (timerInterval) {
-      clearInterval(timerInterval);
+  // --- Timer functions ----
+  function startTimer(isResuming = false) {
+    if (isRunning.value && !isResuming) { // Prevent multiple starts unless resuming
+      console.log('Timer already running');
+      return;
     }
+    clearTimerInterval(); // Clear any existing interval
+
+    isRunning.value = true;
+
+    if (!isResuming) { // Only log "Starting new" if not resuming
+      console.log('Starting new timer session for mode:', currentMode.value);
+    } else {
+      console.log('Resuming timer for mode:', currentMode.value);
+    }
+
+    saveState(); // Save state when timer starts or resumes
 
     isRunning.value = true;
 
@@ -73,15 +157,22 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
       } else {
         // Timer completed
         completeTimer();
+        return; // Exit the interval to prevent further execution
       }
+      saveState(); // Save state on each tick
     }, 1000);
   }
 
   function pauseTimer() {
+    if (!isRunning.value) return; // Do nothing if not running
+
+    console.log('Pausing timer');
+
     isRunning.value = false;
-    clearInterval(timerInterval);
-    timerInterval = null;
+    clearTimerInterval();
+    saveState(); // Save state when paused
   }
+
 
   function toggleTimer() {
     if (isRunning.value) {
@@ -98,6 +189,7 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
 
   function resetTimer() {
     stopTimer();
+    saveState(); // Save state after stopping
 
     // Optionally reset sessionsCompleted if needed
     // sessionsCompleted.value = 0;
@@ -106,39 +198,48 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   }
 
   function completeTimer() {
-   console.log('Completing timer on pomodoro store');
     pauseTimer(); // Stop the interval first
+    isRunning.value = false; // Mark as not running
 
-    // Update sessions completed & determine next mode
-    if (currentMode.value === 'work') {
+    // Play sound and update sessions ONLY if it was a work session that just actively completed
+    // Or if it's a break session (to switch back to work)
+    const wasWorkSession = currentMode.value === (TIMER_CONFIG.work.id || 'work');
+
+    if (wasWorkSession) {
       sessionsCompleted.value++;
       playSound('/audio/start-break.wav');
-
-      if (sessionsCompleted.value > 0 && sessionsCompleted.value % 4 === 0) {
-        currentMode.value = 'longBreak';
-      } else {
-        currentMode.value = 'shortBreak';
-      }
-    } else { // If it was a break ('shortBreak' or 'longBreak')
+    } else { // It was a break session
       playSound('/audio/start-work.wav');
-      currentMode.value = 'work';
     }
-    resetTimerToBase(); // Reset to the new mode's time
-    startTimer(); // Auto-start the next timer
+
+    // Determine next mode
+    let nextModeId = TIMER_CONFIG.work.id || 'work'; // Default to work
+    if (wasWorkSession) {
+      if (sessionsCompleted.value > 0 && sessionsCompleted.value % (TIMER_CONFIG.longBreak?.interval || 4) === 0) {
+        nextModeId = TIMER_CONFIG.longBreak.id || 'longBreak';
+      } else {
+        nextModeId = TIMER_CONFIG.shortBreak.id || 'shortBreak';
+      }
+    }
+
+    currentMode.value = nextModeId; // This will trigger the watcher
+
+    resetTimerToBase(); // Set time for the new mode
+    saveState(); // Save the new state
+    //startTimer(); // Auto-start the next timer  or let watcher hanbdle it on mode change
   }
 
   function stopTimer() {
-    console.log('Stopping timer on pomodoro store'); // Log store stop
     pauseTimer();
     resetTimerToBase(); // Reset time values for the current mode
   }
 
   function stopSession() {
     stopTimer();
-    sessionsCompleted.value = 0; // Reset completed sessions
-    currentMode.value = 'work'; // Reset to work mode
+    sessionsCompleted.value = 0;
+    currentMode.value = 'work';
 
-    boardStore.stopPomodoro(); // Stop the Pomodoro session in the board store
+    boardStore.stopPomodoro();
   }
 
   function changeMode(mode) {
@@ -159,26 +260,30 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     }
   }
 
-  // Initialize timer state based on the initial mode
-  resetTimerToBase(); // Set initial time without pausing/logging
+  function clearTimerInterval() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
 
-  return {
-    currentMode,
-    minutes,
-    seconds,
-    isRunning,
-    sessionsCompleted,
-    formattedTime,
-    modeLabel,
-    modeColor,
-    startTimer,
-    pauseTimer,
-    toggleTimer,
-    resetTimerToBase,
-    resetTimer,
-    stopTimer,
-    stopSession,
-    completeTimer,
-    changeMode,
-  };
+return {
+  currentMode,
+  minutes,
+  seconds,
+  isRunning,
+  sessionsCompleted,
+  formattedTime,
+  modeLabel,
+  modeColor,
+  startTimer,
+  pauseTimer,
+  toggleTimer,
+  resetTimerToBase,
+  resetTimer,
+  stopTimer,
+  stopSession,
+  completeTimer,
+  changeMode,
+};
 });

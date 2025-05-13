@@ -1,23 +1,29 @@
-export const TIMER_CONFIG = {
-  //Duration is in minutes
+// Example TIMER_CONFIG
+const TIMER_CONFIG = {
   work: {
+    id: 'work',
+    duration: 25, // minutes
     label: 'Work',
-    // duration: 25,
-    duration: 1,
     color: 'bg-red-500',
+    autoStartNext: true,
+    autoStart: true,
   },
   shortBreak: {
+    id: 'shortBreak',
+    duration: 5,
     label: 'Short Break',
-    //duration: 5,
-    duration: 1,
     color: 'bg-green-500',
+    autoStartNext: true,
+    autoStart: true,
   },
   longBreak: {
+    id: 'longBreak',
+    duration: 15,
     label: 'Long Break',
-    // duration: 15,
-    duration: 1,
-    color: 'bg-yellow-500',
+    color: 'bg-blue-500',
+    interval: 4, // Number of work sessions before a long break
+    autoStartNext: true,
+    autoStart: true,
   }
 };
-
 export default TIMER_CONFIG;

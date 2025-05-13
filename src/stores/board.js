@@ -5,7 +5,7 @@ import { usePomodoroStore } from '@/stores/pomodoro';
 
 import confetti from 'canvas-confetti';
 
-const STORAGE_KEY = 'kanban-board';
+const Kanban_STORAGE_KEY = 'kanban-board';
 
 export const useBoardStore = defineStore('board', () => {
   const defaultColumns = [
@@ -23,7 +23,7 @@ export const useBoardStore = defineStore('board', () => {
 
   // --- Load from localStorage before setting up the watcher ---
   function loadBoard() {
-    const savedBoard = localStorage.getItem(STORAGE_KEY);
+    const savedBoard = localStorage.getItem(Kanban_STORAGE_KEY);
 
     if (savedBoard) {
       try {
@@ -59,7 +59,7 @@ export const useBoardStore = defineStore('board', () => {
       tasks: tasks.value,
       activePomodoro: activePomodoro.value
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(Kanban_STORAGE_KEY, JSON.stringify(data));
   }, { deep: true });
 
   // --- Column Management ---
@@ -147,7 +147,6 @@ export const useBoardStore = defineStore('board', () => {
       }
 
       if (targetColumnId == 'done' || targetColumnId == 'todo') {
-        console.log('Moving task to done or todo column');
         if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
           stopPomodoro();
           pomodoroStore.stopTimer();
@@ -196,9 +195,7 @@ export const useBoardStore = defineStore('board', () => {
     if (confirm(`Would you like to start a new Pomodoro session for "${task.title}"?`)) {
       startPomodoro(task);
     } else {
-      console.log('Pomodoro session not started for task:', task.title);
       if (activePomodoro.value) {
-        console.log('Active Pomodoro session exists:', activePomodoro.value);
         //If they have an active pomo, ask them if they want to continue
         if (confirm(`Would you like to continue the ongoing Pomodoro session with the new task "${task.title}"?`)) {
           continuePomodoro(task);
