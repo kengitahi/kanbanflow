@@ -2,19 +2,21 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
 import { usePomodoroStore } from '@/stores/pomodoro';
+import { usePomodoroModalStore } from '@/stores/pomodoroModal';
 
 import confetti from 'canvas-confetti';
 
 const Kanban_STORAGE_KEY = 'kanban-board';
 
 export const useBoardStore = defineStore('board', () => {
+  const pomodoroStore = usePomodoroStore();
+  const pomodoroModalStore = usePomodoroModalStore();
+
   const defaultColumns = [
     { id: 'todo', name: 'To Do', color: 'bg-blue-200', isDefault: true },
     { id: 'doing', name: 'Doing', color: 'bg-yellow-200', isDefault: true },
     { id: 'done', name: 'Done', color: 'bg-green-200', isDefault: true },
   ];
-
-  const pomodoroStore = usePomodoroStore();
 
   const columns = ref([]);
   const tasks = ref([]);
@@ -24,7 +26,7 @@ export const useBoardStore = defineStore('board', () => {
   // --- Load from localStorage before setting up the watcher ---
   function loadBoard() {
     const savedBoard = localStorage.getItem(Kanban_STORAGE_KEY);
-    console.log('savedBoard', savedBoard);
+
     if (savedBoard) {
       try {
         const parsed = JSON.parse(savedBoard);
@@ -148,6 +150,7 @@ export const useBoardStore = defineStore('board', () => {
 
       if (targetColumnId == 'done' || targetColumnId == 'todo') {
         if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
+
           stopPomodoro();
           pomodoroStore.stopTimer();
         }
@@ -202,8 +205,9 @@ export const useBoardStore = defineStore('board', () => {
         case 'continue':
           continuePomodoro(task);
           break;
-      };
-    };
+      }
+    }
+  }
 
     function startPomodoro(task) {
       pomodoroStore.stopSession();
@@ -247,4 +251,4 @@ export const useBoardStore = defineStore('board', () => {
       stopPomodoro,
     };
   }
-});
+);

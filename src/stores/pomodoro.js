@@ -48,7 +48,6 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
         savedTimestamp: isRunning.value ? Date.now() : null,
       };
       localStorage.setItem(POMODORO_STORAGE_KEY, JSON.stringify(stateToSave));
-      console.log('Pomodoro state saved:', stateToSave);
     } catch (error) {
       console.error('Error saving Pomodoro state to localStorage:', error);
     }
@@ -60,7 +59,6 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
 
       if (savedPomodoro) {
         const localTimerState = JSON.parse(savedPomodoro);
-        console.log('Pomodoro state loaded:', localTimerState);
 
         currentMode.value = localTimerState.currentMode || TIMER_CONFIG.work.id;
         sessionsCompleted.value = localTimerState.sessionsCompleted || 0;
@@ -109,8 +107,6 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   watch(currentMode, (newModeId, oldModeId) => {
     if (newModeId === oldModeId) return; // No change
 
-    console.log(`Mode changed from ${oldModeId} to ${newModeId}. Resetting timer.`);
-
     resetTimerToBase();
 
     const previousModeConfig = TIMER_CONFIG[oldModeId] || TIMER_CONFIG.work;
@@ -138,12 +134,6 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
 
     isRunning.value = true;
 
-    if (!isResuming) { // Only log "Starting new" if not resuming
-      console.log('Starting new timer session for mode:', currentMode.value);
-    } else {
-      console.log('Resuming timer for mode:', currentMode.value);
-    }
-
     saveState(); // Save state when timer starts or resumes
 
     isRunning.value = true;
@@ -165,8 +155,6 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
 
   function pauseTimer() {
     if (!isRunning.value) return; // Do nothing if not running
-
-    console.log('Pausing timer');
 
     isRunning.value = false;
     clearTimerInterval();

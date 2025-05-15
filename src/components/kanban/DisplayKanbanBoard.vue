@@ -8,20 +8,25 @@
       />
     </div>
     <AddColumnForm />
+
+    <StartPomodoroModal
+      :isVisible="pomodoroModalStore.showModal"
+      @option-selected="pomodoroModalStore.handleSelectedOption"
+      @close="pomodoroModalStore.showModal = false"
+    />
   </div>
 </template>
 
 <script setup>
   import { useBoardStore } from '@/stores/board';
+  import { usePomodoroModalStore } from '@/stores/pomodoroModal';
 
   import Column from '@/components/kanban/SingleColumn.vue';
   import AddColumnForm from '@/components/kanban/AddColumnForm.vue';
-import { onMounted } from 'vue';
+  import StartPomodoroModal from '../Modals/StartPomodoroModal.vue';
 
   const boardStore = useBoardStore();
   const { columns } = boardStore;
 
-  onMounted(() => {
-   console.log(boardStore);
-  });
+  const pomodoroModalStore = usePomodoroModalStore();
 </script>
