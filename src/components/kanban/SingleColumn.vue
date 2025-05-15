@@ -51,7 +51,7 @@
   const props = defineProps({
     column: Object
   });
-  const boardStore = useBoardStore();
+  const store = useBoardStore();
 
   const name = ref(props.column.name);
   watch(() => props.column.name, (val) => {
@@ -59,24 +59,24 @@
   });
 
   function rename() {
-    boardStore.renameColumn(props.column.id, name.value);
+    store.renameColumn(props.column.id, name.value);
   }
 
   function remove() {
-    boardStore.removeColumn(props.column.id);
+    store.removeColumn(props.column.id);
   }
 
 
   function handleAddTask({ columnId, title }) {
-    boardStore.addTask(columnId, title);
+    store.addTask(columnId, title);
   }
 
   function handleRemoveTask(taskId) {
-    boardStore.removeTask(taskId);
+    store.removeTask(taskId);
   }
 
   const columnTasks = computed(() =>
-    boardStore.tasks.filter(task => task.columnId === props.column.id)
+    store.tasks.filter(task => task.columnId === props.column.id)
   );
 
   function onTaskMoved(evt) {
@@ -86,7 +86,7 @@
     const newColumn = props.column.id;
 
     if (movedTask) {
-      boardStore.moveTask(movedTask.id, newColumn);
+      store.moveTask(movedTask.id, newColumn);
     }
   }
 

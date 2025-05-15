@@ -33,6 +33,8 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
 
   const modeColor = computed(() => modeConfig.value.color || 'bg-blue-500');
 
+
+
   // --- Internal Functions ---
   function saveState() {
     try {
@@ -58,6 +60,7 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
 
       if (savedPomodoro) {
         const localTimerState = JSON.parse(savedPomodoro);
+        console.log('Pomodoro state loaded:', localTimerState);
 
         currentMode.value = localTimerState.currentMode || TIMER_CONFIG.work.id;
         sessionsCompleted.value = localTimerState.sessionsCompleted || 0;
