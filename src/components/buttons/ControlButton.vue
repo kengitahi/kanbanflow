@@ -2,7 +2,7 @@
   <button
     @click="onClick"
     :class="[
-      'px-4 py-2 rounded-lg font-medium mr-2 mb-2 focus:outline-none transition-colors hover:shadow-lg hover:cursor-pointer duration-300',
+      'px-4 py-2 rounded-lg font-medium mr-2 focus:outline-none transition-colors hover:shadow-lg hover:cursor-pointer duration-300',
       variant === 'primary'
         ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
         : variant === 'secondary'

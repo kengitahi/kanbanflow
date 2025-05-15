@@ -1,22 +1,22 @@
 <template>
-  <div class="flex flex-wrap justify-center my-4">
-    <button
-      v-for="(config, mode) in modes"
-      :key="mode"
-      @click="onModeSelect(mode)"
-      :class="[
-        'px-3 py-1 rounded-md mr-2 mb-2 focus:outline-none transition-colors hover:shadow-lg hover:cursor-pointer duration-300',
+  <div class="flex flex-wrap p-3 justify-center items-center border-b-2 border-gray-300">
+      <button
+        v-for="(config, mode) in modes"
+        :key="mode"
+        @click="onModeSelect(mode)"
+        :class="[
+        'px-3 py-1 rounded-md mr-2 focus:outline-none transition-colors hover:shadow-lg hover:cursor-pointer duration-300',
         currentMode === mode
           ? config.color + ' text-white'
           : 'bg-gray-200 hover:bg-gray-300 text-gray-700',
       ]"
-      :disabled="!boardStore.activePomodoro"
-      class="disabled:opacity-50 disabled:cursor-not-allowed"
-      :title="boardStore.activePomodoro ? 'Click to start ' + config.label : 'Please start a pomodoro session first'"
-    >
-      Start {{ config.label }}
-    </button>
-  </div>
+        :disabled="!boardStore.activePomodoro"
+        class="disabled:opacity-50 disabled:cursor-not-allowed"
+        :title="boardStore.activePomodoro ? 'Click to start ' + config.label : 'Please start a pomodoro session first'"
+      >
+        {{ config.label }}
+      </button>
+    </div>
 </template>
 
 <script setup>
