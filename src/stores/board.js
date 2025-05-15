@@ -2,21 +2,19 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
 import { usePomodoroStore } from '@/stores/pomodoro';
-import { usePomodoroModalStore } from '@/stores/pomodoroModal';
 
 import confetti from 'canvas-confetti';
 
 const Kanban_STORAGE_KEY = 'kanban-board';
 
 export const useBoardStore = defineStore('board', () => {
-  const pomodoroStore = usePomodoroStore();
-  const pomodoroModalStore = usePomodoroModalStore();
-
   const defaultColumns = [
     { id: 'todo', name: 'To Do', color: 'bg-blue-200', isDefault: true },
     { id: 'doing', name: 'Doing', color: 'bg-yellow-200', isDefault: true },
     { id: 'done', name: 'Done', color: 'bg-green-200', isDefault: true },
   ];
+
+  const pomodoroStore = usePomodoroStore();
 
   const columns = ref([]);
   const tasks = ref([]);
