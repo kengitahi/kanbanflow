@@ -15,7 +15,12 @@
   import { useBoardStore } from '@/stores/board';
   import Column from '@/components/kanban/SingleColumn.vue';
   import AddColumnForm from '@/components/kanban/AddColumnForm.vue';
+import { onMounted } from 'vue';
 
   const boardStore = useBoardStore();
   const { columns } = boardStore;
+
+  onMounted(() => {
+   console.log(boardStore);
+  });
 </script>

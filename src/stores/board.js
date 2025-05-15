@@ -26,7 +26,7 @@ export const useBoardStore = defineStore('board', () => {
   // --- Load from localStorage before setting up the watcher ---
   function loadBoard() {
     const savedBoard = localStorage.getItem(Kanban_STORAGE_KEY);
-
+    console.log('savedBoard', savedBoard);
     if (savedBoard) {
       try {
         const parsed = JSON.parse(savedBoard);
@@ -197,63 +197,56 @@ export const useBoardStore = defineStore('board', () => {
     // Open the Pomodoro modal
     pomodoroModalStore.openModal();
     pomodoroModalStore.handleSelectedOption = (option) => {
-      if (option === 'start') {
-        startPomodoro(task);
-      } else if (option === 'continue') {
-        continuePomodoro(task);
-      }
+      switch (option) {
+        case 'start':
+          startPomodoro(task);
+          break;
+        case 'continue':
+          continuePomodoro(task);
+          break;
+      };
     };
-    // if (confirm(`Would you like to start a new Pomodoro session for "${task.title}"?`)) {
-    //   startPomodoro(task);
-    // } else {
-    //   if (activePomodoro.value) {
-    //     //If they have an active pomo, ask them if they want to continue
-    //     if (confirm(`Would you like to continue the ongoing Pomodoro session with the new task "${task.title}"?`)) {
-    //       continuePomodoro(task);
-    //     }
-    //   }
-    // }
-  }
 
-  function startPomodoro(task) {
-    pomodoroStore.stopSession();
-    pomodoroStore.changeMode('work');
+    function startPomodoro(task) {
+      pomodoroStore.stopSession();
+      pomodoroStore.changeMode('work');
 
-    activePomodoro.value = {
-      taskId: task.id,
-      taskName: task.title,
-      startTime: Date.now()
+      activePomodoro.value = {
+        taskId: task.id,
+        taskName: task.title,
+        startTime: Date.now()
+      };
+      pomodoroStore.startTimer();
+    }
+
+    function continuePomodoro(task) {
+      activePomodoro.value = {
+        taskId: task.id,
+        taskName: task.title,
+        startTime: activePomodoro.value.startTime
+      };
+    }
+
+    function stopPomodoro() {
+      activePomodoro.value = null;
+    }
+
+    return {
+      columns,
+      tasks,
+      activePomodoro,
+      addColumn,
+      removeColumn,
+      renameColumn,
+      addTask,
+      removeTask,
+      moveTask,
+      getTasksByColumnId,
+      markTaskComplete,
+      triggerConfetti,
+      promptPomodoro,
+      startPomodoro,
+      stopPomodoro,
     };
-    pomodoroStore.startTimer();
   }
-
-  function continuePomodoro(task) {
-    activePomodoro.value = {
-      taskId: task.id,
-      taskName: task.title,
-      startTime: activePomodoro.value.startTime
-    };
-  }
-
-  function stopPomodoro() {
-    activePomodoro.value = null;
-  }
-
-  return {
-    columns,
-    tasks,
-    activePomodoro,
-    addColumn,
-    removeColumn,
-    renameColumn,
-    addTask,
-    removeTask,
-    moveTask,
-    getTasksByColumnId,
-    markTaskComplete,
-    triggerConfetti,
-    promptPomodoro,
-    startPomodoro,
-    stopPomodoro,
-  };
 });
