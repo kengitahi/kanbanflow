@@ -196,7 +196,7 @@ export const useBoardStore = defineStore('board', () => {
   // --- Pomodoro
   function promptPomodoro(task) {
     // Open the Pomodoro modal
-    pomodoroModalStore.openModal();
+    pomodoroModalStore.openModal(task);
     pomodoroModalStore.handleSelectedOption = (option) => {
       switch (option) {
         case 'start':

@@ -2,7 +2,7 @@
 const TIMER_CONFIG = {
   work: {
     id: 'work',
-    duration: 25, // minutes
+    duration: 1, // minutes
     label: 'Work',
     color: 'bg-red-500',
     autoStartNext: true,
@@ -10,7 +10,7 @@ const TIMER_CONFIG = {
   },
   shortBreak: {
     id: 'shortBreak',
-    duration: 5,
+    duration: 1,
     label: 'Short Break',
     color: 'bg-green-500',
     autoStartNext: true,
@@ -18,7 +18,7 @@ const TIMER_CONFIG = {
   },
   longBreak: {
     id: 'longBreak',
-    duration: 15,
+    duration: 1,
     label: 'Long Break',
     color: 'bg-blue-500',
     interval: 4, // Number of work sessions before a long break

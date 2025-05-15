@@ -11,6 +11,7 @@
 
     <StartPomodoroModal
       :isVisible="pomodoroModalStore.showModal"
+      :taskName="pomodoroModalStore.taskName"
       @option-selected="pomodoroModalStore.handleSelectedOption"
       @close="pomodoroModalStore.showModal = false"
     />

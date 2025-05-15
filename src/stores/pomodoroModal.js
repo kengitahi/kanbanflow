@@ -5,7 +5,8 @@ export const usePomodoroModalStore = defineStore('pomodoroModal', {
   // State: holds the reactive data for the store
   state: () => ({
     showModal: false,
-    selectedOption: null
+    selectedOption: null,
+    taskName: '', // Store the task name or any other relevant data
   }),
 
 
@@ -13,8 +14,9 @@ export const usePomodoroModalStore = defineStore('pomodoroModal', {
     /**
      * Opens the modal by setting showModal to true.
      */
-    openModal() {
+    openModal(task) {
       this.showModal = true;
+      this.taskName = task.name; // Store the task name or any other relevant data
     },
 
     /**
