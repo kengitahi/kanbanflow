@@ -2,11 +2,11 @@
 
 @import './base.css';
 @import 'tailwindcss';
-body{
-  font-family: "Libre Franklin", sans-serif;
+body {
+  font-family: 'Libre Franklin', sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
-  letter-spacing:0.1rem;
+  letter-spacing: 0.1rem;
 }
 .dragging,
 .sortable-chosen {
@@ -18,8 +18,17 @@ body{
 .draggable-fade-leave-active {
   transition: all 0.2s ease;
 }
+
 .draggable-fade-enter-from,
 .draggable-fade-leave-to {
   opacity: 0;
   transform: scale(0.95);
+}
+
+/* Adds pointer cursor to buttons */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
 }

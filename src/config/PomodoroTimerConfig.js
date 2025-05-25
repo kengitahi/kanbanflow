@@ -1,4 +1,3 @@
-// Example TIMER_CONFIG
 const TIMER_CONFIG = {
   work: {
     id: 'work',

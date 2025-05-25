@@ -1,26 +1,27 @@
 import { defineStore } from 'pinia';
 
-
 export const usePomodoroModalStore = defineStore('pomodoroModal', {
-  // State: holds the reactive data for the store
   state: () => ({
     showModal: false,
     selectedOption: null,
-    taskName: '', // Store the task name or any other relevant data
+    task: '', // Store the task
   }),
-
 
   actions: {
     /**
      * Opens the modal by setting showModal to true.
+     * @param {Object} task - The task object to be displayed in the modal.
+     * @returns {void}
      */
     openModal(task) {
       this.showModal = true;
-      this.taskName = task.name; // Store the task name or any other relevant data
+      this.task = task; // Store the task
     },
 
     /**
      * Closes the modal by setting showModal to false.
+     * Resets the selected option when closing the modal.
+     * @returns {void}
      */
     closeModal() {
       this.showModal = false;
@@ -29,15 +30,15 @@ export const usePomodoroModalStore = defineStore('pomodoroModal', {
 
     /**
      * Handles the logic when an option is selected in the modal.
-     *
+     * Updates the selectedOption state and can perform additional actions based on the selection.
      * @param {string} option - The identifier of the selected option.
      */
     handleSelectedOption(option) {
       this.selectedOption = option; // Store the selected option
 
       // You can add more complex logic here based on the option
-      // For this example, we'll just close the modal after selection
+      // For now, we'll just close the modal after selection
       this.closeModal();
-    }
+    },
   },
 });

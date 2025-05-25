@@ -16,8 +16,6 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   const boardStore = useBoardStore();
 
   let timerInterval = null;
-  //Track times on load
-  let savedTimeStamp = null;
 
   // Computed properties
   const formattedTime = computed(() => {
@@ -127,7 +125,6 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   // --- Timer functions ----
   function startTimer(isResuming = false) {
     if (isRunning.value && !isResuming) { // Prevent multiple starts unless resuming
-      console.log('Timer already running');
       return;
     }
     clearTimerInterval(); // Clear any existing interval
@@ -182,7 +179,10 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     // Optionally reset sessionsCompleted if needed
     // sessionsCompleted.value = 0;
 
-    startTimer();
+    //Only restart timer if we already have an active task
+    if (boardStore.activePomodoro) {
+      startTimer();;
+    }
   }
 
   function completeTimer() {
@@ -255,23 +255,23 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     }
   }
 
-return {
-  currentMode,
-  minutes,
-  seconds,
-  isRunning,
-  sessionsCompleted,
-  formattedTime,
-  modeLabel,
-  modeColor,
-  startTimer,
-  pauseTimer,
-  toggleTimer,
-  resetTimerToBase,
-  resetTimer,
-  stopTimer,
-  stopSession,
-  completeTimer,
-  changeMode,
-};
+  return {
+    currentMode,
+    minutes,
+    seconds,
+    isRunning,
+    sessionsCompleted,
+    formattedTime,
+    modeLabel,
+    modeColor,
+    startTimer,
+    pauseTimer,
+    toggleTimer,
+    resetTimerToBase,
+    resetTimer,
+    stopTimer,
+    stopSession,
+    completeTimer,
+    changeMode,
+  };
 });

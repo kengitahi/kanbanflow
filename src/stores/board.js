@@ -85,7 +85,7 @@ export const useBoardStore = defineStore('board', () => {
     if (confirm(`Are you sure you want to delete column "${columnName}"?`)) {
 
       if (numTasks > 0) {
-        if (confirm(`There are ${numTasks} tasks in column "${columnName}. Would you like to mark all of them as done?`)) {
+        if (confirm(`There are ${numTasks} tasks in column "${columnName}". Would you like to mark all of them as done?`)) {
           //Mark all tasks in the deleted column as done and move them to 'done' column
           tasks.value.forEach(task => {
             if (task.columnId === id) {
@@ -150,7 +150,6 @@ export const useBoardStore = defineStore('board', () => {
 
       if (targetColumnId == 'done' || targetColumnId == 'todo') {
         if (activePomodoro.value && activePomodoro.value.taskId === taskId) {
-
           stopPomodoro();
           pomodoroStore.stopTimer();
         }
@@ -206,49 +205,49 @@ export const useBoardStore = defineStore('board', () => {
           continuePomodoro(task);
           break;
       }
-    }
-  }
-
-    function startPomodoro(task) {
-      pomodoroStore.stopSession();
-      pomodoroStore.changeMode('work');
-
-      activePomodoro.value = {
-        taskId: task.id,
-        taskName: task.title,
-        startTime: Date.now()
-      };
-      pomodoroStore.startTimer();
-    }
-
-    function continuePomodoro(task) {
-      activePomodoro.value = {
-        taskId: task.id,
-        taskName: task.title,
-        startTime: activePomodoro.value.startTime
-      };
-    }
-
-    function stopPomodoro() {
-      activePomodoro.value = null;
-    }
-
-    return {
-      columns,
-      tasks,
-      activePomodoro,
-      addColumn,
-      removeColumn,
-      renameColumn,
-      addTask,
-      removeTask,
-      moveTask,
-      getTasksByColumnId,
-      markTaskComplete,
-      triggerConfetti,
-      promptPomodoro,
-      startPomodoro,
-      stopPomodoro,
     };
   }
+
+  function startPomodoro(task) {
+    pomodoroStore.stopSession();
+    pomodoroStore.changeMode('work');
+
+    activePomodoro.value = {
+      taskId: task.id,
+      taskName: task.title,
+      startTime: Date.now()
+    };
+    pomodoroStore.startTimer();
+  }
+
+  function continuePomodoro(task) {
+    activePomodoro.value = {
+      taskId: task.id,
+      taskName: task.title,
+      startTime: activePomodoro.value.startTime
+    };
+  }
+
+  function stopPomodoro() {
+    activePomodoro.value = null;
+  }
+
+  return {
+    columns,
+    tasks,
+    activePomodoro,
+    addColumn,
+    removeColumn,
+    renameColumn,
+    addTask,
+    removeTask,
+    moveTask,
+    getTasksByColumnId,
+    markTaskComplete,
+    triggerConfetti,
+    promptPomodoro,
+    startPomodoro,
+    stopPomodoro,
+  };
+}
 );

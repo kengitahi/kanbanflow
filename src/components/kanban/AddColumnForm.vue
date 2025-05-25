@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-[500px] bg-white p-4 rounded-lg shadow">
+  <div class="min-w-[250px] bg-white p-4 rounded-lg shadow">
     <h2 class="text-lg font-bold mb-2">Add a New Column</h2>
     <form @submit.prevent="handleAdd">
       <input
@@ -18,16 +18,16 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue';
-  import { useBoardStore } from '@/stores/board';
+import { ref } from 'vue'
+import { useBoardStore } from '@/stores/board'
 
-  const store = useBoardStore();
-  const newColumn = ref('');
+const store = useBoardStore()
+const newColumn = ref('')
 
-  function handleAdd() {
-    if (newColumn.value.trim()) {
-      store.addColumn(newColumn.value.trim());
-      newColumn.value = '';
-    }
+function handleAdd() {
+  if (newColumn.value.trim()) {
+    store.addColumn(newColumn.value.trim())
+    newColumn.value = ''
   }
+}
 </script>
