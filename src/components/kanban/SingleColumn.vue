@@ -44,6 +44,7 @@ import draggable from 'vuedraggable'
 const props = defineProps({
   column: Object,
 })
+
 const store = useBoardStore()
 
 const name = ref(props.column.name)
